@@ -93,6 +93,42 @@ case ":${PROMPT_COMMAND-}:" in
   *) PROMPT_COMMAND="__termlog_prompt${PROMPT_COMMAND:+;}${PROMPT_COMMAND-}" ;;
 esac
 
+# --- Cwd-first completion ---------------------------------------------------
+# Tab should prefer files and directories already in $PWD. Do not search
+# CDPATH. First word on an empty line lists the current folder; a prefix
+# still offers PATH commands after matching local paths (so `ls` works).
+# Warp's input editor ignores readline, but it still asks bash for the
+# completions menu, so these `complete` specs apply there too.
+shopt -s autocd cdspell dirspell
+unset CDPATH
+
+__term_cwd_paths() {
+  local cur=$1 x
+  while IFS= read -r x; do
+    [[ -n $x ]] && COMPREPLY+=("$x")
+  done < <(compgen -f -- "$cur")
+}
+
+__term_initial_complete() {
+  local cur="${COMP_WORDS[COMP_CWORD]-}"
+  COMPREPLY=()
+  __term_cwd_paths "$cur"
+  if [[ -n $cur ]]; then
+    local x
+    while IFS= read -r x; do
+      [[ -n $x ]] && COMPREPLY+=("$x")
+    done < <(compgen -c -- "$cur")
+  fi
+  compopt -o filenames 2>/dev/null || true
+}
+
+__term_default_complete() {
+  local cur="${COMP_WORDS[COMP_CWORD]-}"
+  COMPREPLY=()
+  __term_cwd_paths "$cur"
+  compopt -o filenames -o bashdefault -o default 2>/dev/null || true
+}
+
 # --- ble.sh: syntax highlighting, ghost text, context-aware completion ------
 # Skip inside Warp: Warp's input editor already provides these and does not
 # use GNU Readline, so ble.sh cannot attach to it.
@@ -102,6 +138,11 @@ if [[ -z ${WARP_IS_LOCAL_SHELL_SESSION-} && -z ${WARP_TERMINAL_SESSION_UUID-} ]]
     source -- "$HOME/.local/share/blesh/ble.sh"
   fi
 fi
+
+# Register after ble.sh so it does not replace these specs.
+complete -I -F __term_initial_complete -o filenames 2>/dev/null || true
+complete -D -F __term_default_complete -o filenames -o bashdefault -o default 2>/dev/null || true
+complete -d -o dirnames -o nospace cd pushd rmdir 2>/dev/null || true
 
 # Machine-specific extras (not tracked). Copy local.sh.example to enable.
 if [[ -f $HOME/.config/bash/local.sh ]]; then
