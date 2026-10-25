@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# List or search journals in TERMINAL_LOG_DIR (default: ~/projects/terminal-logs).
+set -u
+dir="${TERMINAL_LOG_DIR:-$HOME/projects/terminal-logs}"
+
+usage() {
+  printf '%s\n' \
+    "termlogs — terminal command journals" \
+    "  termlogs              list log files" \
+    "  termlogs today        show today's command journal" \
+    "  termlogs tail         follow today's command journal" \
+    "  termlogs search PAT   grep all command journals" \
+    "  termlogs path         print the log directory"
+}
+
+if [[ ! -d $dir ]]; then
+  printf 'termlogs: directory not found: %s\n' "$dir" >&2
+  exit 1
+fi
+
+cmd="${1:-list}"
+case "$cmd" in
+  -h|--help|help)
+    usage
+    ;;
+  list|ls)
+    ls -lt -- "$dir"
+    ;;
+  today)
+    f="$dir/$(date +%Y-%m-%d).commands.log"
+    if [[ -f $f ]]; then
+      cat -- "$f"
+    else
+      printf 'termlogs: no journal yet for today (%s)\n' "$f" >&2
+      exit 1
+    fi
+    ;;
+  tail)
+    f="$dir/$(date +%Y-%m-%d).commands.log"
+    touch -- "$f"
+    tail -n 50 -F -- "$f"
+    ;;
+  search|grep)
+    shift
+    if (($# == 0)); then
+      printf 'termlogs: search requires a pattern\n' >&2
+      exit 2
+    fi
+    grep -H -- "$@" "$dir"/*.commands.log 2>/dev/null || true
+    ;;
+  path)
+    printf '%s\n' "$dir"
+    ;;
+  *)
+    grep -H -- "$@" "$dir"/*.commands.log 2>/dev/null || true
+    ;;
+esac

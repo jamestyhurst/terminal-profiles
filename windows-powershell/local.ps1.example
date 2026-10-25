@@ -1,0 +1,4 @@
+# Copy next to $PROFILE as local.ps1 for machine-specific aliases.
+# install.ps1 will not overwrite an existing local.ps1.
+
+# Set-Alias warp "$HOME/.local/bin/warp"

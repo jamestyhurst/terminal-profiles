@@ -1,0 +1,19 @@
+# GNU Readline settings for Bash outside Warp.
+# Warp uses its own input editor and ignores this file.
+
+set completion-ignore-case on
+set completion-map-case on
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set colored-stats on
+set colored-completion-prefix on
+set mark-symlinked-directories on
+set visible-stats on
+set skip-completed-text on
+set bell-style none
+
+# Up/down search history by current prefix
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+"\e[C": forward-char
+"\e[D": backward-char

@@ -1,0 +1,4 @@
+# Copy to ~/.config/bash/local.sh for machine-specific aliases and PATH.
+# This file is not overwritten by install.sh.
+
+# alias warp="$HOME/.local/bin/warp"
