@@ -141,7 +141,11 @@ fi
 
 # Register after ble.sh so it does not replace these specs.
 complete -I -F __term_initial_complete -o filenames 2>/dev/null || true
-complete -D -F __term_default_complete -o filenames -o bashdefault -o default 2>/dev/null || true
+# Keep an existing default (bash-completion's lazy loader for git, apt, ...);
+# replacing it would stop per-command completions from loading.
+if [[ -z $(complete -p -D 2>/dev/null) ]]; then
+  complete -D -F __term_default_complete -o filenames -o bashdefault -o default 2>/dev/null || true
+fi
 complete -d -o dirnames -o nospace cd pushd rmdir 2>/dev/null || true
 
 # Machine-specific extras (not tracked). Copy local.sh.example to enable.
