@@ -8,7 +8,9 @@ terminal-profiles/
   windows-powershell/     # pwsh 7+, PSReadLine, Start-Transcript
 ```
 
-Both sides aim for the same feel: tab completion, ghost-text suggestions, syntax highlighting, large shared history, and automatic session transcripts under `~/projects/terminal-logs/`.
+Both sides aim for the same feel: tab completion from the current directory, ghost-text suggestions, syntax highlighting, large shared history, and automatic session transcripts under `~/projects/terminal-logs/`.
+
+On Linux, Tab prefers files and folders already in `$PWD`. An empty first word lists the current directory; a typed prefix still includes matching PATH commands after local paths. `cd` completes directories only. `autocd` is on (type a folder name to enter it), and `cdspell`/`dirspell` fix small typos in directory names. If bash-completion is installed, its per-command completions (git, apt, ...) stay in charge after the first word. Warp ignores GNU Readline / ble.sh, but it still asks bash for the completions menu.
 
 Warp already provides highlighting and ghost text in its own input editor. These profiles skip the extra line-editor and `script` wrapping inside Warp so they do not fight it.
 
